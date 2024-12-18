@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieve form data
@@ -26,7 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     
     if ($result->num_rows == 1) {
-        // Login Success
+        // Set session variables
+        $_SESSION['username'] = $input_username;
+        // Redirect to DisplayInfo.php
         header("Location: DisplayInfo.php");
         exit();
     } else {
@@ -36,9 +40,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $con->close();
+} else if (isset($_SESSION['username'])) {
+    // User is already logged in
+    header("Location: DisplayInfo.php");
+    exit();
 } else {
     // Redirect to login page if accessed directly
     header("Location: login.html");
     exit();
 }
 ?>
+

@@ -1,13 +1,35 @@
+<?php
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['username'])) {
+    // Redirect to login page
+    header("Location: index.html");
+    exit();
+}
+
+// If user is logged in, continue displaying the page
+?>
+
 <!DOCTYPE html>
 <html>
 
 <head>
 	<meta charset="utf-8">
 	<title> Lifeguard </title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	
+	<!-- CSS only -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.min.css">
+	<link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.bootstrap5.css">
+	
+
+
 </head>
 
 <body>
-	
+
 	
 	<style>
 		@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
@@ -33,7 +55,7 @@
 			width: 100%;
 			border-collapse: collapse;
 			background: #323232;
-		}		
+		}
 
 		th, td, caption {
 			padding: 1rem;
@@ -56,29 +78,50 @@
 		}
 
 		.header {
-			white-space: nowrap; /* Prevent line breaks */
-			text-align: center; /* Center align contents */
+			padding-top: 10px;
+			white-space: nowrap; 
+			text-align: center; 
 		}
 
 		.header ul {
 			font-weight: 700;
-			display: outline-block; /* Display list items vertical */
-			margin: 10px 10px; /* Add some spacing between list items */
+			display: outline-block; 
+			margin: 10px 100px; 
 		}
 
 		.header ul a {
-			color: #eee; /* Adjust link color */
-			text-decoration: none; /* Remove underline from links */
+			color: #eee; 
+			text-decoration: none; 
 		}
 
 
 		.header ul a:hover {
-    		text-decoration: underline; /* Add underline on hover */
+    		text-decoration: underline; 
 		}
 
-		@media (max-width: 650px) {
+		.logout a {
+			float: right;
+			background: #555;
+			color: #fff;
+			padding: 10px;
+			border-radius: 10px;
+			margin-right: 10px;
+			border: none;
+			text-decoration: none;
+		}
+
+		.logout a:hover {
+			opacity: 0.7;
+		}
+
+		
+
+		@media (max-width: 767px) {
+			
+		
 			th {
 				display: none;
+				
 			}
 
 			td {
@@ -88,13 +131,23 @@
 				padding: 0.5rem 1rem;
 			}
 
+
 			td:first-child {
 				padding-top: 2rem;
 			}
 
 			td:last-child {
 				padding-bottom: 2rem;
+				padding-left:10rem;
+				padding-right:10rem;
+				padding-left: 1rem; /* Adjust padding-left */
+        		padding-right: 1rem; /* Adjust padding-right */
+				text-align: center;
 			}
+
+			td:not(:last-child) {
+        		text-align: center; /* Align text to the center */
+    		}
 
 			td::before {
 				content: attr(data-cell) ": ";
@@ -103,6 +156,19 @@
 			td[data-cell]::before {
         		color: #EEE; 
     		}
+
+			.header {
+				padding-top: 10px;
+			}
+
+			.header ul {
+				text-align: left;
+				margin-left: auto;
+				margin-top: 12px;
+				
+			}
+
+			
 		}
 		
 		
@@ -112,6 +178,10 @@
 
 
 	<main>
+		<div class="logout">
+			<a href="logout.php">Logout</a>
+		</div>
+
 		<div class="header">
 			<ul> <a href="#incident.in"> Περιστατικά Εντός Νερού </a> </ul>
 			<ul> <a href="#incident.out"> Περιστατικά Εκτός Νερού </a> </ul>
@@ -121,8 +191,10 @@
 		
 
 		<div class="wrapper">
-			<table>
+		
+			<table id="myTable" class="table table-striped">
 				<caption id="incident.in"> Περιστατικά Εντός Νερού </caption>
+				<thead>
 				<tr>
 					<th>Όνομα</th>
 					<th>Επίθετο</th>
@@ -139,6 +211,10 @@
 					<th>Πλάγια Θέση(αναπνοή)/ΚΑΡΠΑ(χωρίς αναπνοή)</th>
 					<th>Μεταφορά στον Νοσοκομείο(αναπνοή)/Απινιδωτής(χωρίς αναπνοή)</th>
 					<th>Επανήλθε πριν την Μεταφορά(αναπνοή/χωρίς αναπνοή)</th>
+					</tr>
+				</thead>
+				<tbody>
+
 					
 					
 					
@@ -154,7 +230,7 @@
 						contacts.name, 
 						contacts.last_name, 
 						contacts.date, 
-						contacts.time, 
+						inside_water_insident.time, 
 						contacts.address, 
 						contacts.license, 
 						inside_water_insident.flag, 
@@ -196,7 +272,8 @@
 					$result = mysqli_query($con, $query);
 					while($row=mysqli_fetch_assoc($result))
 					{
-						?>
+						
+						?>	
 							<tr>
 								<td data-cell="Όνομα"><?php echo $row['name']?></td>
 								<td data-cell="Επίθετο"><?php echo $row['last_name']?></td>
@@ -219,14 +296,15 @@
 					
 					?>
 
-				</tr>
+				</tbody>
 			</table>
-
+	
 		</div>
 
 		<div class="wrapper">
-			<table>
+			<table id="myTable1" class="table table-striped">
 				<caption id="incident.out"> Περιστατικά Εκτός Νερού  </caption>
+				<thead>
 				<tr>
 					<th>Όνομα</th>
 					<th>Επίθετο</th>
@@ -242,7 +320,8 @@
 					<th>Πλάγια Θέση(αναπνοή)/ΚΑΡΠΑ(χωρίς αναπνοή)</th>
 					<th>Μεταφορά στον Νοσοκομείο(αναπνοή)/Απινιδωτής(χωρίς αναπνοή)</th>
 					<th>Επανήλθε πριν την Μεταφορά(αναπνοή/χωρίς αναπνοή)</th>
-					
+				</thead>
+				<tbody>
 					
 					<?php
 					$user_name = "marinos";
@@ -256,7 +335,7 @@
 						contacts.name, 
 						contacts.last_name, 
 						contacts.date, 
-						contacts.time, 
+						outside_water_insident.time, 
 						contacts.address, 
 						contacts.license, 
 						outside_water_insident.flag, 
@@ -320,13 +399,15 @@
 					?>
 
 				</tr>
+				</tbody>
 			</table>
 		</div>
 
 
 		<div class="wrapper">
-			<table>
+			<table id="myTable2" class="table table-striped">
 				<caption id="work.days"> Ημέρες Εργασίας </caption>
+				<thead>
 				<tr>
 					<th>Αριθμός Άδειας</th>
 					<th>Όνομα</th>
@@ -334,6 +415,8 @@
 					<th>Μήνας</th>
 					<th>Ημέρες Εργασίας του Μήνα</th>
 					<th>Σύνολο αποδοχών Μήνα</th>
+				</thead>
+				<tbody>
 					
 					
 					<?php
@@ -380,19 +463,24 @@
 					?>
 
 				</tr>
+				</tbody>
 			</table>
 		</div>
 
 		<div class="wrapper">
-			<table>
+			<table id="myTable3" class="table table-striped">
 				<caption id="equipment"> Εξοπλησμός </caption>
+				<thead>
 				<tr>
 					<th>Όνομα</th>
 					<th>Επίθετο</th>
 					<th>Ημερομηνία</th>
+					<th>Ωρα</th>
 					<th>Τοποθεσία</th>
 					<th>Πύργος</th>
 					<th>Ελείψεις Εξοπλησμού</th>
+				</thead>
+				<tbody>
 					
 					
 					
@@ -408,6 +496,7 @@
 					contacts.name,
 					contacts.last_name,
 					contacts.date,
+					contacts.time,
 					contacts.address,
 					equipment.equipment,
 					equipment.tower
@@ -426,6 +515,7 @@
 								<td><?php echo $row['name']?></td>
 								<td><?php echo $row['last_name']?></td>
 								<td><?php echo $row['date']?></td>
+								<td><?php echo $row['time']?></td>
 								<td><?php echo $row['address']?></td>
 								<td><?php echo $row['tower']?></td>
 								<td><?php echo $row['equipment']?></td>
@@ -436,10 +526,17 @@
 					?>
 
 				</tr>
+				</tbody>
 			</table>
 		</div>
-
 	</main>
+	
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<script src="https://cdn.datatables.net/2.0.5/js/dataTables.bootstrap5.js"></script>
+	<script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
+
+	
 	<script>
 		function AddTableARIA() {
   try {
@@ -479,6 +576,134 @@
 
 AddTableARIA();
 	</script>
+
+	
+
+	<script>
+		$(document).ready(function(){
+			$('#myTable').DataTable();
+
+			applyGeneralStyle();
+			applyMediaStyles();
+		});
+
+		$(document).ready(function(){
+			$('#myTable1').DataTable();
+
+			applyMediaStyles();
+		});
+
+		$(document).ready(function(){
+			$('#myTable2').DataTable();
+
+			applyMediaStyles();
+		});
+
+		$(document).ready(function(){
+			$('#myTable3').DataTable();
+
+			applyMediaStyles();
+		});
+
+
+
+		function applyGeneralStyle() {
+    // Your CSS styles here
+    $('.wrapper').css({
+        'width': 'min(1200px, 100% - 3rem)',
+        'margin-top': '100px',
+        'margin-inline': 'auto',
+        'overflow-x': 'auto',
+        'text-align': 'left'
+    });
+
+    $('table').css({
+        'width': '100%',
+        'border-collapse': 'collapse',
+        'background': '#323232'
+    });
+
+    $('th, td, caption').css({
+        'padding': '1.8rem',
+		
+		'text-align': 'center'
+		
+    });
+
+    $('caption').css({
+        'text-align': 'left',
+        'background': 'hsl(0 0% 0% / 0.5)',
+        'font-size': '1.5rem',
+        'font-weight': '700',
+        'text-transform': 'uppercase'
+    });
+
+    $('th').css({
+		'margin-inline': 'auto',
+        'overflow-x': 'auto',
+		'text-align': 'left',
+        'background': 'hsl(0 0% 0% / 0.5)'
+    });
+
+	$('td').css({
+		'margin-inline': 'auto',
+        'overflow-x': 'auto',
+		'text-align': 'left',
+        
+    });
+
+    
+}
+
+
+
+		
+
+		function applyMediaStyles() {
+            if (window.matchMedia('(max-width: 767px)').matches) {
+				$('table').css({
+					'width': '100%',
+					'border-collapse': 'collapse',
+					'background': '#323232'
+				});
+                // Apply your @media styles here
+                $('th').css('display', 'none');
+                $('td').css({
+                    'display': 'grid',
+                    'grid-template-columns': '15ch auto',
+					'grid-template-rows': 'auto auto',
+                    'padding': '0.5rem 1rem'
+                });
+                $('td:first-child').css('padding-top', '2rem');
+                $('td:last-child').css({
+                    'padding-bottom': '2rem',
+					'padding-left': '1rem',
+        			'padding-right': '1rem',
+                    'text-align': 'center'
+                });
+				$('td:not(:last-child)').css('text-align', 'center');
+                $('td::before').css({
+                    'content': 'attr(data-cell) ": "',
+                    'font-weight': '700'
+                });
+                $('td[data-cell]::before').css('color', '#EEE');
+                $('.header').css('padding-top', '10px');
+                $('.header ul').css({
+                    'text-align': 'left',
+                    'margin-left': 'auto',
+                    'margin-top': '12px'
+                });
+            }
+        }
+
+	</script>
+
+
+	
+
+
 </body>
 </html>
+
+
 

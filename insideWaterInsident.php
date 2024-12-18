@@ -13,6 +13,7 @@ if($con)
 	$Rescue = $_POST['rescue'];
 	$Rescued = $_POST['rescued'];
 	$License = $_POST['license'];
+	$Time = $_POST['time'];
 	
 	$queryId = "select MAX(id) as lastid from contacts WHERE license = '$License';";
 	$result_id = mysqli_query($con, $queryId);
@@ -25,7 +26,7 @@ if($con)
 	
 	
 	//Prepare the query with placeholders
-	$query = "insert into inside_water_insident(flag, distance, buoys, rescue, rescued, contacts_id) values('".$Flag."', '".$Distance."', '".$Buoys."', '".$Rescue."', '".$Rescued."', '".$ContactId."');";
+	$query = "insert into inside_water_insident(time, flag, distance, buoys, rescue, rescued, contacts_id) values('".$Time."', '".$Flag."', '".$Distance."', '".$Buoys."', '".$Rescue."', '".$Rescued."', '".$ContactId."');";
 	$result = mysqli_query($con, $query);
 	//$response = array();
 	if($result)
